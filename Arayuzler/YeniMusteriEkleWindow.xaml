@@ -1,0 +1,57 @@
+<Window x:Class="MarketPOS.Arayuzler.YeniMusteriEkleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Yeni Müşteri Ekle" Height="500" Width="450" 
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#F4F6F9"
+        Loaded="Window_Loaded">
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Border Padding="25">
+            <StackPanel Orientation="Vertical">
+                
+                <TextBlock Text="Yeni Müşteri Kaydı" FontSize="20" FontWeight="Bold" Foreground="#34495E" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                
+                <!-- Ad Soyad -->
+                <TextBlock Text="Ad Soyad:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtAdSoyad" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Telefon -->
+                <TextBlock Text="Telefon:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtTelefon" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Adres -->
+                <TextBlock Text="Adres (Opsiyonel):" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtAdres" FontSize="16" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" Height="60" TextWrapping="Wrap" AcceptsReturn="True" />
+
+                <!-- Başlangıç Borcu -->
+                <TextBlock Text="Başlangıç Borcu (TL):" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtBorc" Text="0" FontSize="18" Padding="8" Margin="0,0,0,25" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Butonlar -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="Kaydet (Enter)" Background="#2ECC71" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="Kaydet_Click" IsDefault="True">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <Button Grid.Column="2" Content="İptal (ESC)" Background="#E74C3C" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="Iptal_Click" IsCancel="True">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>

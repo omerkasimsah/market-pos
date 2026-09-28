@@ -1,0 +1,65 @@
+<Window x:Class="MarketPOS.Arayuzler.ParaUstuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="💵 Para Üstü Hesaplama" Height="520" Width="550"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#1A2332"
+        Loaded="Window_Loaded">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toplam Tutar -->
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <TextBlock Text="TOPLAM TUTAR" FontSize="16" FontWeight="Bold" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="txtToplamTutar" Text="0.00 ₺" FontSize="48" FontWeight="Black" Foreground="#F1C40F" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Alınan Para Girişi -->
+        <Border Grid.Row="1" Background="#2C3E50" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="MÜŞTERİDEN ALINAN PARA:" FontSize="15" FontWeight="Bold" Foreground="#BDC3C7" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtAlinanPara" FontSize="36" FontWeight="Black" Padding="10" HorizontalContentAlignment="Right" TextChanged="TxtAlinanPara_TextChanged" Background="#34495E" Foreground="White" BorderBrush="#3498DB" BorderThickness="2"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Para Üstü Göstergesi -->
+        <Border Grid.Row="2" x:Name="brdParaUstu" Background="#27AE60" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="PARA ÜSTÜ:" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="txtParaUstu" Text="0.00 ₺" FontSize="52" FontWeight="Black" Foreground="White" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Hızlı Para Butonları -->
+        <TextBlock Grid.Row="3" Text="⚡ Hızlı Seçim:" FontSize="13" Foreground="#7F8C8D" FontWeight="Bold" Margin="0,0,0,5"/>
+        <WrapPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="50 ₺" Tag="50" Width="90" Height="50" Margin="4" FontSize="16" FontWeight="Bold" Background="#3498DB" Foreground="White" BorderThickness="0" Click="HizliPara_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+            <Button Content="100 ₺" Tag="100" Width="90" Height="50" Margin="4" FontSize="16" FontWeight="Bold" Background="#2ECC71" Foreground="White" BorderThickness="0" Click="HizliPara_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+            <Button Content="200 ₺" Tag="200" Width="90" Height="50" Margin="4" FontSize="16" FontWeight="Bold" Background="#E67E22" Foreground="White" BorderThickness="0" Click="HizliPara_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+            <Button Content="500 ₺" Tag="500" Width="90" Height="50" Margin="4" FontSize="16" FontWeight="Bold" Background="#9B59B6" Foreground="White" BorderThickness="0" Click="HizliPara_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+            <Button Content="1000 ₺" Tag="1000" Width="90" Height="50" Margin="4" FontSize="16" FontWeight="Bold" Background="#E74C3C" Foreground="White" BorderThickness="0" Click="HizliPara_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+        </WrapPanel>
+
+        <!-- Tamam Butonu -->
+        <Button Grid.Row="5" Content="✅ TAMAM (ENTER)" Background="#27AE60" Foreground="White" FontSize="20" FontWeight="Bold" Padding="0,14" BorderThickness="0" Click="BtnTamam_Click" IsDefault="True" Margin="0,15,0,0">
+            <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+        </Button>
+    </Grid>
+</Window>

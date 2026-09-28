@@ -1,0 +1,53 @@
+<Window x:Class="MarketPOS.Arayuzler.ToptanciIslemWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Toptancı İşlemi" Height="500" Width="450"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#F4F6F9">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Border Padding="25">
+            <StackPanel Orientation="Vertical">
+                
+                <TextBlock x:Name="txtBaslik" Text="Toptancı İşlemi" FontSize="20" FontWeight="Bold" Foreground="#34495E" HorizontalAlignment="Center" Margin="0,0,0,15" />
+                
+                <TextBlock x:Name="txtToptanciBilgi" Text="Firma: -" FontSize="16" Foreground="#7F8C8D" Margin="0,0,0,20" TextWrapping="Wrap" />
+
+                <TextBlock Text="İşlem Türü:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <ComboBox x:Name="cmbIslemTuru" FontSize="16" Height="38" Margin="0,0,0,15">
+                    <ComboBoxItem Content="Toptancıya Ödeme Yapıldı (Borç Düş)" IsSelected="True" />
+                    <ComboBoxItem Content="Mal Alındı / Borçlandı (Borç Ekle)" />
+                </ComboBox>
+
+                <TextBlock Text="İşlem Tutarı (TL):" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtTutar" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <TextBlock Text="Açıklama:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtAciklama" FontSize="16" Padding="8" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="Onayla" Background="#2ECC71" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="Onayla_Click" IsDefault="True">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <Button Grid.Column="2" Content="İptal (ESC)" Background="#E74C3C" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="Iptal_Click" IsCancel="True">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>

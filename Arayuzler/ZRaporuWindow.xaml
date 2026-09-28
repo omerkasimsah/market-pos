@@ -1,0 +1,148 @@
+<Window x:Class="MarketPOS.Arayuzler.ZRaporuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="📊 Z Raporu - Gün Sonu Kasa Kapama" Height="700" Width="800"
+        WindowStartupLocation="CenterScreen" Background="#F4F6F9">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <Border Grid.Row="0" Background="#2C3E50" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <TextBlock Text="📊 Z RAPORU - GÜN SONU KASA KAPAMA" FontSize="22" FontWeight="Black" Foreground="White"/>
+                    <TextBlock x:Name="txtRaporTarihi" Text="" FontSize="14" Foreground="#BDC3C7" Margin="0,3,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Z Rapor No: " FontSize="16" Foreground="#BDC3C7" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtRaporNo" Text="Z001" FontSize="20" FontWeight="Black" Foreground="#F1C40F" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Tarih Seçimi -->
+        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="10" Margin="0,0,0,10" BorderBrush="#E0E0E0" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Rapor Tarihi:" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <DatePicker x:Name="dpRaporTarihi" Width="200" SelectedDateChanged="DpRaporTarihi_Changed"/>
+                <Button Content="📊 RAPOR OLUŞTUR" Background="#3498DB" Foreground="White" FontWeight="Bold" FontSize="14" Padding="12,6" Margin="10,0,0,0" BorderThickness="0" Click="BtnRaporOlustur_Click">
+                    <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Rapor İçeriği -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="pnlRaporIcerik" Margin="0,0,0,10">
+                <!-- Genel Özet -->
+                <TextBlock Text="📈 GENEL ÖZET" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                <UniformGrid Columns="3" Margin="0,0,0,15">
+                    <!-- Toplam Ciro -->
+                    <Border Background="#27AE60" CornerRadius="8" Padding="15" Margin="0,0,5,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="TOPLAM CİRO" FontSize="13" FontWeight="Bold" Foreground="#E8F8F5" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtToplamCiro" Text="0.00 ₺" FontSize="28" FontWeight="Black" Foreground="White" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Satış Adedi -->
+                    <Border Background="#3498DB" CornerRadius="8" Padding="15" Margin="3,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="SATIŞ ADEDİ" FontSize="13" FontWeight="Bold" Foreground="#D6EAF8" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtSatisAdedi" Text="0" FontSize="28" FontWeight="Black" Foreground="White" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Ortalama Sepet -->
+                    <Border Background="#E67E22" CornerRadius="8" Padding="15" Margin="5,0,0,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="ORT. SEPET" FontSize="13" FontWeight="Bold" Foreground="#FEF5E7" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtOrtalamaSepet" Text="0.00 ₺" FontSize="28" FontWeight="Black" Foreground="White" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- Ödeme Dağılımı -->
+                <TextBlock Text="💰 ÖDEME DAĞILIMI" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                <UniformGrid Columns="3" Margin="0,0,0,15">
+                    <Border Background="#E8F8F5" CornerRadius="8" Padding="12" Margin="0,0,5,0" BorderBrush="#27AE60" BorderThickness="2">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="💵 NAKİT" FontSize="13" FontWeight="Bold" Foreground="#27AE60" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtNakitToplam" Text="0.00 ₺" FontSize="22" FontWeight="Black" Foreground="#27AE60" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#EBF5FB" CornerRadius="8" Padding="12" Margin="3,0" BorderBrush="#3498DB" BorderThickness="2">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="💳 KREDİ KARTI" FontSize="13" FontWeight="Bold" Foreground="#3498DB" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtKartToplam" Text="0.00 ₺" FontSize="22" FontWeight="Black" Foreground="#3498DB" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#F5EEF8" CornerRadius="8" Padding="12" Margin="5,0,0,0" BorderBrush="#8E44AD" BorderThickness="2">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="📒 VERESİYE" FontSize="13" FontWeight="Bold" Foreground="#8E44AD" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtVeresiyeToplam" Text="0.00 ₺" FontSize="22" FontWeight="Black" Foreground="#8E44AD" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- İade & İskonto -->
+                <TextBlock Text="🔄 İADE VE İSKONTO" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                <UniformGrid Columns="2" Margin="0,0,0,15">
+                    <Border Background="#FDEDEC" CornerRadius="8" Padding="12" Margin="0,0,5,0" BorderBrush="#E74C3C" BorderThickness="2">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="↩ İADE TOPLAM" FontSize="13" FontWeight="Bold" Foreground="#E74C3C" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtIadeToplam" Text="0.00 ₺" FontSize="22" FontWeight="Black" Foreground="#E74C3C" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#FEF5E7" CornerRadius="8" Padding="12" Margin="5,0,0,0" BorderBrush="#F39C12" BorderThickness="2">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="% İSKONTO TOPLAM" FontSize="13" FontWeight="Bold" Foreground="#F39C12" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="txtIskontoToplam" Text="0.00 ₺" FontSize="22" FontWeight="Black" Foreground="#F39C12" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- Satış Listesi -->
+                <TextBlock Text="📋 GÜN İÇİ SATIŞLAR" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                <DataGrid x:Name="dgSatislar" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" MaxHeight="200"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E0E0E0"
+                          RowHeight="35" FontSize="13" AlternatingRowBackground="#F7F9F9">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Satış No" Binding="{Binding SatisNumarasi}" Width="140"/>
+                        <DataGridTextColumn Header="Saat" Binding="{Binding Tarih, StringFormat=HH:mm:ss}" Width="80"/>
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding ToplamTutar, StringFormat={}{0:N2} ₺}" Width="100"/>
+                        <DataGridTextColumn Header="Ödeme" Binding="{Binding OdemeTuru}" Width="100"/>
+                        <DataGridTextColumn Header="Nakit" Binding="{Binding NakitTutar, StringFormat={}{0:N2}}" Width="80"/>
+                        <DataGridTextColumn Header="Kart" Binding="{Binding KartTutar, StringFormat={}{0:N2}}" Width="80"/>
+                        <DataGridTextColumn Header="Veresiye" Binding="{Binding VeresiyeTutar, StringFormat={}{0:N2}}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Alt Butonlar -->
+        <Grid Grid.Row="3" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Content="💾 Z RAPORUNU KAYDET" Background="#27AE60" Foreground="White" FontSize="15" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnKaydet_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+            <Button Grid.Column="2" Content="🖨 YAZDIR" Background="#3498DB" Foreground="White" FontSize="15" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnYazdir_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+            <Button Grid.Column="4" Content="❌ KAPAT" Background="#95A5A6" Foreground="White" FontSize="15" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnKapat_Click">
+                <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

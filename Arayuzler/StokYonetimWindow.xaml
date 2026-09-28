@@ -1,0 +1,10 @@
+<Window x:Class="MarketPOS.Arayuzler.StokYonetimWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MarketPOS.Arayuzler"
+        Title="Stok ve Ürün Yönetimi - SüperMarket POS" Height="768" Width="1024" WindowState="Maximized"
+        Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16">
+    <Grid>
+        <local:StokYonetimUserControl x:Name="stokEkrani" />
+    </Grid>
+</Window>

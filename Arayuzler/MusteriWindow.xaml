@@ -1,0 +1,10 @@
+<Window x:Class="MarketPOS.Arayuzler.MusteriWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MarketPOS.Arayuzler"
+        Title="Müşteri ve Veresiye Takibi - SüperMarket POS" Height="768" Width="1024" WindowState="Maximized"
+        Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16">
+    <Grid>
+        <local:MusteriTakipUserControl x:Name="musteriEkrani" />
+    </Grid>
+</Window>

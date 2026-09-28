@@ -1,0 +1,53 @@
+<Window x:Class="MarketPOS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Market POS Otomasyonu" Height="768" Width="1024" WindowState="Maximized" 
+        Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16"
+        Loaded="Window_Loaded" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown">
+    
+    <Window.Resources>
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Margin" Value="3,0" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#34495E" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />  <!-- Navigasyon Header -->
+            <RowDefinition Height="*" />   <!-- Ana İçerik Çerçevesi -->
+        </Grid.RowDefinitions>
+        
+        <!-- 1. En Üst Navigasyon Çubuğu (Header) -->
+        <Border Grid.Row="0" Background="#1ABC9C">
+            <Grid>
+                <TextBlock Text="SüperMarket POS v1.0" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="15,0,0,0" />
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
+                    <Button Content="Satış Ekranı" Style="{StaticResource NavButtonStyle}" Click="NavSatis_Click" />
+                    <Button Content="Stok Yönetimi" Style="{StaticResource NavButtonStyle}" Click="NavStok_Click" />
+                    <Button Content="Müşteri/Veresiye" Style="{StaticResource NavButtonStyle}" Click="NavMusteri_Click" />
+                    <Button Content="Toptancılar" Style="{StaticResource NavButtonStyle}" Click="NavToptanci_Click" />
+                    <Button Content="Giderler" Style="{StaticResource NavButtonStyle}" Click="NavGider_Click" />
+                    <Button Content="Kasa/Raporlar" Style="{StaticResource NavButtonStyle}" Click="NavKasa_Click" />
+                    <Button Content="🧮 Hesap Mak. (F6)" Style="{StaticResource NavButtonStyle}" Background="#8E44AD" Click="NavHesapMakinesi_Click" />
+                    <Button Content="⚙️ Ayarlar" Style="{StaticResource NavButtonStyle}" Click="NavAyarlar_Click" />
+                    <Button Content="Çıkış" Style="{StaticResource NavButtonStyle}" Background="#E74C3C" Click="NavCikis_Click" Margin="5,5,5,5" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 2. Ana İçerik Kontrolü (UserControl'ler buraya yüklenecek) -->
+        <ContentControl x:Name="AnaIcerik" Grid.Row="1" />
+    </Grid>
+</Window>

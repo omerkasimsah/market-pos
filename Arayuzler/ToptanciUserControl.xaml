@@ -1,0 +1,97 @@
+<UserControl x:Class="MarketPOS.Arayuzler.ToptanciUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1024"
+             Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16"
+             Loaded="UserControl_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="15,8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Margin" Value="5,0,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="Toptancı ve Tedarikçi Yönetimi" FontSize="24" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center" />
+            <Button Content="🏠 Ana Menü" Background="#1ABC9C" Foreground="White" FontWeight="Bold" FontSize="14" Padding="12,6" HorizontalAlignment="Right" VerticalAlignment="Center" BorderThickness="0" Click="BtnAnaMenu_Click">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+
+        <!-- Üst Bar: Arama ve Eylemler -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Arama Kutusu -->
+            <Border Grid.Column="0" Background="#ECF0F1" CornerRadius="5" Padding="10,5" Width="250">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#7F8C8D"/>
+                    <TextBox x:Name="txtArama" Width="200" Background="Transparent" BorderThickness="0" FontSize="16" VerticalAlignment="Center" TextChanged="txtArama_TextChanged" />
+                </StackPanel>
+            </Border>
+
+            <!-- Eylem Butonları -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Content="📦 Sipariş Oluştur" Background="#8E44AD" Style="{StaticResource ActionButtonStyle}" Click="BtnSiparisOlustur_Click" />
+                <Button Content="+ Yeni Toptancı" Background="#2ECC71" Style="{StaticResource ActionButtonStyle}" Click="BtnYeniToptanci_Click" />
+                <Button Content="Ödeme Yap / Borçlan" Background="#3498DB" Style="{StaticResource ActionButtonStyle}" Click="BtnIslemYap_Click" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Toptancılar Tablosu -->
+        <Border Grid.Row="2" Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1">
+            <DataGrid x:Name="dgToptancilar" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E0E0E0"
+                      RowHeight="40" FontSize="15" Background="Transparent" BorderThickness="0"
+                      AlternatingRowBackground="#F9F9F9" RowBackground="White">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Firma Adı" Binding="{Binding FirmaAdi}" Width="*" />
+                    <DataGridTextColumn Header="Yetkili Kişi" Binding="{Binding Yetkili}" Width="180" />
+                    <DataGridTextColumn Header="Telefon" Binding="{Binding Telefon}" Width="150" />
+                    <DataGridTextColumn Header="Borç / Alacak Tutarı" Binding="{Binding BorcMiktari, StringFormat={}{0:N2} ₺}" Width="180">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                <Setter Property="FontWeight" Value="Bold" />
+                                <Setter Property="Foreground" Value="#C0392B" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Kayıt Tarihi" Binding="{Binding KayitTarihi, StringFormat=\{0:dd.MM.yyyy\}}" Width="130" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

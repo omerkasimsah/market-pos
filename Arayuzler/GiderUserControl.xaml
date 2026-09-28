@@ -1,0 +1,109 @@
+<UserControl x:Class="MarketPOS.Arayuzler.GiderUserControl"
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+              mc:Ignorable="d" 
+              d:DesignHeight="600" d:DesignWidth="1024"
+              Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16"
+              Loaded="UserControl_Loaded">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <!-- Üst Bar: Başlık ve Ana Menü Butonu -->
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="💸 Dükkan Gelir &amp; Gider Yönetimi" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center" />
+            <Button Content="🏠 Ana Menü" Background="#1ABC9C" Foreground="White" FontWeight="Bold" FontSize="14" Padding="12,6" HorizontalAlignment="Right" VerticalAlignment="Center" BorderThickness="0" Click="BtnAnaMenu_Click">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+
+        <!-- İçerik Alanı: Form ve DataGrid -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Sol Taraf: Gider Ekle Formu -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20" BorderBrush="#E0E0E0" BorderThickness="1">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="💸 Yeni Gider Ekle" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Gider Türü:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="cmbGiderTuru" FontSize="16" Height="38" Margin="0,0,0,15">
+                        <ComboBoxItem Content="Kira" IsSelected="True" />
+                        <ComboBoxItem Content="Elektrik / Su Faturası" />
+                        <ComboBoxItem Content="Eleman Maaşı" />
+                        <ComboBoxItem Content="Mal Alımı" />
+                        <ComboBoxItem Content="Vergi / Harç" />
+                        <ComboBoxItem Content="Diğer Harcama" />
+                    </ComboBox>
+
+                    <TextBlock Text="Tutar (TL):" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5"/>
+                    <TextBox x:Name="txtTutar" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                    <TextBlock Text="Açıklama / Not:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5"/>
+                    <TextBox x:Name="txtAciklama" FontSize="16" Padding="8" Height="70" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                    <Button Content="Gideri Kaydet" Background="#E74C3C" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnKaydet_Click">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Sağ Taraf: Geçmiş Giderler Tablosu -->
+            <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="20" BorderBrush="#E0E0E0" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="📋 Geçmiş Gider Kayıtları" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        
+                        <Border Background="#FADBD8" CornerRadius="6" Padding="12,6" HorizontalAlignment="Right">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Toplam Gider: " Foreground="#C0392B" FontSize="15" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtToplamGider" Text="0.00 ₺" Foreground="#C0392B" FontSize="16" FontWeight="Black"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <DataGrid x:Name="dgGiderler" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" 
+                              Background="White" RowHeight="36" ColumnHeaderHeight="40" FontSize="15" 
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#ECF0F1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tarih" Binding="{Binding Tarih, StringFormat=\{0:dd.MM.yyyy HH:mm\}}" Width="150" />
+                            <DataGridTextColumn Header="Gider Türü" Binding="{Binding GiderTuru}" Width="150" />
+                            <DataGridTextColumn Header="Açıklama" Binding="{Binding Aciklama}" Width="*" />
+                            <DataGridTextColumn Header="Tutar" Binding="{Binding Tutar, StringFormat={}{0:N2} ₺}" Width="130">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Setter Property="Foreground" Value="#C0392B" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

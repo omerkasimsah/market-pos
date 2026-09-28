@@ -1,0 +1,159 @@
+<Window x:Class="MarketPOS.Arayuzler.AnaMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SüperMarket POS v1.0 - Ana Menü" Height="720" Width="1100" WindowState="Maximized"
+        Background="#1E272C" FontFamily="Segoe UI" FontSize="16"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style x:Key="MenuCardStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2C3E50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="12" Padding="15">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#34495E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="🛒 SÜPERMARKET POS v1.0" Foreground="#1ABC9C" FontSize="28" FontWeight="Bold"/>
+                <TextBlock Text=" |  Ana Yönetim Paneli" Foreground="#BDC3C7" FontSize="20" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock x:Name="txtTarihSaat" Text="12.08.2026 23:59" Foreground="#ECF0F1" FontSize="18" FontWeight="Bold" Margin="0,0,15,0"/>
+                <Button Content="Çıkış Yap" Background="#E74C3C" Foreground="White" FontWeight="Bold" FontSize="15" Padding="15,8" BorderThickness="0" Click="BtnCikis_Click">
+                    <Button.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Ana Menü Kartları (3x3 Grid) -->
+        <UniformGrid Grid.Row="1" Rows="3" Columns="3">
+            
+            <!-- 1. Satış Ekranı -->
+            <Button x:Name="btnSatisEkrani" Style="{StaticResource MenuCardStyle}" Background="#27AE60" Click="BtnSatis_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🛒" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="SATIŞ EKRANI" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Kasiyer Hızlı Satış &amp; Fiş" FontSize="14" Foreground="#D5F5E3" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 2. Stok Yönetimi -->
+            <Button x:Name="btnStokYonetimi" Style="{StaticResource MenuCardStyle}" Background="#2980B9" Click="BtnStok_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="📦" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="STOK YÖNETİMİ" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Ürün, KDV &amp; SKT Parti Takibi" FontSize="14" Foreground="#D6EAF8" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 3. Müşteri & Veresiye -->
+            <Button x:Name="btnMusteriVeresiye" Style="{StaticResource MenuCardStyle}" Background="#8E44AD" Click="BtnMusteri_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="👥" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="MÜŞTERİ / VERESİYE" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Cari Hesaplar &amp; Tahsilat" FontSize="14" Foreground="#EBDEF0" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 4. Toptancılar & Sipariş -->
+            <Button x:Name="btnToptancilar" Style="{StaticResource MenuCardStyle}" Background="#D35400" Click="BtnToptanci_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🚚" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="TOPTANCILAR" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Tedarikçiler &amp; Mal Alımı" FontSize="14" Foreground="#EDBB99" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 5. Giderler -->
+            <Button x:Name="btnGiderler" Style="{StaticResource MenuCardStyle}" Background="#C0392B" Click="BtnGider_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="💸" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="GİDER YÖNETİMİ" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Fatura, Kira &amp; Harcamalar" FontSize="14" Foreground="#FADBD8" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 6. Kasa & Raporlar -->
+            <Button x:Name="btnKasaRaporlari" Style="{StaticResource MenuCardStyle}" Background="#16A085" Click="BtnKasa_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="📊" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="KASA ÖZETİ" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Ciro &amp; Net Kar/Zarar" FontSize="14" Foreground="#A3E4D7" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 7. Detaylı Raporlar -->
+            <Button x:Name="btnDetayliRaporlar" Style="{StaticResource MenuCardStyle}" Background="#F39C12" Click="BtnRaporlar_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="📈" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="DETAYLI RAPORLAR" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="Ürün Bazlı Satış &amp; Fiş Bulma" FontSize="14" Foreground="#FCF3CF" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- 8. AKILLI BİLDİRİM MERKEZİ (ROZETLİ BADGE) -->
+            <Button x:Name="btnUyariMerkezi" Style="{StaticResource MenuCardStyle}" Background="#2C3E50" Click="BtnUyarilar_Click">
+                <Grid HorizontalAlignment="Center">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="🚨" FontSize="48" HorizontalAlignment="Center"/>
+                        <TextBlock Text="UYARI MERKEZİ" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                        <TextBlock Text="SKT, Stok &amp; Borç Riskleri" FontSize="14" Foreground="#BDC3C7" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Kırmızı Bildirim Rozeti (Badge) -->
+                    <Border x:Name="brdBadge" Background="#E74C3C" CornerRadius="12" Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,-10,0" Visibility="Collapsed">
+                        <TextBlock x:Name="txtBildirimSayisi" Text="0" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    </Border>
+                </Grid>
+            </Button>
+
+            <!-- 9. Ayarlar & Hesap Makinesi -->
+            <Button x:Name="btnAyarlar" Style="{StaticResource MenuCardStyle}" Background="#7F8C8D" Click="BtnAyarlar_Click">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="⚙️" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="AYARLAR &amp; ARAÇLAR" FontSize="22" FontWeight="Bold" Margin="0,10,0,0"/>
+                    <TextBlock Text="POS Port, Yazıcı &amp; Hesap Mak." FontSize="14" Foreground="#EAEDED" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+        </UniformGrid>
+
+        <!-- Footer Bar -->
+        <Border Grid.Row="2" Background="#111A1E" CornerRadius="6" Padding="15,5">
+            <Grid>
+                <TextBlock Text="Sistem Durumu: Çevrimiçi | Veritabanı: SQLite | Dapper Akıllı Performans Modu" Foreground="#7F8C8D" FontSize="13" VerticalAlignment="Center"/>
+                <TextBlock Text="Windows 7 4GB RAM Uyumlu - %100 Türkçe POS v1.0" Foreground="#1ABC9C" FontSize="13" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

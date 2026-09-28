@@ -1,0 +1,46 @@
+<Window x:Class="MarketPOS.Arayuzler.FiyatGorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Fiyat Gör" Height="400" Width="700"
+        WindowStartupLocation="CenterOwner" Background="#2C3E50"
+        WindowStyle="None" AllowsTransparency="True"
+        Loaded="Window_Loaded" KeyDown="Window_KeyDown">
+
+    <Border BorderBrush="#F1C40F" BorderThickness="4" CornerRadius="15" Background="#2C3E50">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Başlık ve Gizli Barkod Kutusu -->
+            <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
+                <TextBlock Text="FİYAT GÖR (F9)" Foreground="#F1C40F" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Text="Lütfen ürünü okutun veya ESC ile çıkın." Foreground="#BDC3C7" FontSize="16" Margin="0,5,0,10" HorizontalAlignment="Center"/>
+                
+                <!-- Sadece okutmayı yakalamak için odaklanacak kutu -->
+                <TextBox x:Name="txtBarkod" Opacity="0" Height="1" Width="1" KeyDown="TxtBarkod_KeyDown" />
+            </StackPanel>
+
+            <!-- Ürün Bilgisi ve Fiyat Alanı -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock x:Name="txtUrunAdi" Text="Barkod Bekleniyor..." Foreground="White" FontSize="36" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="600" />
+                
+                <TextBlock x:Name="txtFiyat" Text="0,00 ₺" Foreground="#2ECC71" FontSize="90" FontWeight="Black" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="#2ECC71" BlurRadius="25" ShadowDepth="0" Opacity="0.6"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+            </StackPanel>
+            
+            <Button Grid.Row="2" Content="KAPAT (ESC)" Background="#E74C3C" Foreground="White" FontSize="20" FontWeight="Bold" Height="50" BorderThickness="0" Click="BtnKapat_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="8"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+    </Border>
+</Window>

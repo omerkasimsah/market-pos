@@ -1,0 +1,154 @@
+<UserControl x:Class="MarketPOS.Arayuzler.MusteriTakipUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1024"
+             Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16"
+             Loaded="UserControl_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="15,10" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="6*" /> <!-- Sol: Müşteriler -->
+            <ColumnDefinition Width="10" /> <!-- Boşluk -->
+            <ColumnDefinition Width="4*" /> <!-- Sağ: Müşteri Detay / Hareketler -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Sol Panel: Müşteri Listesi -->
+        <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,15">
+                    <TextBlock Text="Müşteri ve Veresiye Takibi" FontSize="24" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center" />
+                    <Button Content="🏠 Ana Menü" Background="#1ABC9C" Foreground="White" FontWeight="Bold" FontSize="14" Padding="12,6" HorizontalAlignment="Right" VerticalAlignment="Center" BorderThickness="0" Click="BtnAnaMenu_Click">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+
+                <!-- Arama ve Ekleme Alanı -->
+                <Grid Grid.Row="1" Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Grid.Column="0" Background="#ECF0F1" CornerRadius="5" Padding="10,5" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#7F8C8D"/>
+                            <TextBox x:Name="txtArama" Width="300" Background="Transparent" BorderThickness="0" FontSize="16" VerticalAlignment="Center" TextChanged="txtArama_TextChanged" />
+                            <!-- Placeholder mantığı için arkada TextBlock da konulabilirdi, basitlik adına boş bırakıldı -->
+                        </StackPanel>
+                    </Border>
+                    
+                    <Button Grid.Column="1" Content="+ Yeni Müşteri" Background="#3498DB" Style="{StaticResource ActionButtonStyle}" Click="BtnYeniMusteri_Click" />
+                </Grid>
+
+                <!-- Müşteri Tablosu -->
+                <DataGrid Grid.Row="2" x:Name="dgMusteriler" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E0E0E0"
+                          RowHeight="40" FontSize="16" Background="Transparent" BorderThickness="1" BorderBrush="#E0E0E0"
+                          AlternatingRowBackground="#F2F4F4" RowBackground="White"
+                          SelectionChanged="dgMusteriler_SelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Ad Soyad" Binding="{Binding AdSoyad}" Width="*" />
+                        <DataGridTextColumn Header="Telefon" Binding="{Binding Telefon}" Width="150" />
+                        <DataGridTextColumn Header="Kayıt Tarihi" Binding="{Binding KayitTarihi, StringFormat=\{0:dd.MM.yyyy\}}" Width="120" />
+                        <DataGridTextColumn Header="Borç Bakiye" Binding="{Binding BorcMiktari, StringFormat={}{0:N2} ₺}" Width="130">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding BorcMiktari}" Value="0">
+                                            <Setter Property="Foreground" Value="#27AE60" />
+                                        </DataTrigger>
+                                        <!-- Bakiyesi 0'dan büyük olanları Kırmızı/Turuncu yapmak için kod tarafında veya DataTrigger ile değer kontrolü yapılabilir, basitlik adına atlandı -->
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- Sağ Panel: Seçili Müşteri Hareketleri -->
+        <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Müşteri Hesap Hareketleri" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15" />
+
+                <!-- Seçili Müşteri Özeti -->
+                <Border Grid.Row="1" Background="#2C3E50" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock x:Name="txtSeciliMusteriAd" Text="Müşteri Seçilmedi" Foreground="White" FontSize="18" FontWeight="Bold" />
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock Text="Güncel Bakiye: " Foreground="#BDC3C7" FontSize="16" />
+                            <TextBlock x:Name="txtSeciliMusteriBorc" Text="0,00 ₺" Foreground="#E74C3C" FontSize="18" FontWeight="Bold" />
+                        </StackPanel>
+                        
+                        <UniformGrid Columns="2" Margin="0,15,0,0">
+                            <Button Content="Borç Ekle" Background="#E67E22" Style="{StaticResource ActionButtonStyle}" Click="BtnBorcEkle_Click" x:Name="btnBorcEkle" IsEnabled="False" />
+                            <Button Content="Tahsilat Yap" Background="#2ECC71" Style="{StaticResource ActionButtonStyle}" Click="BtnTahsilatYap_Click" x:Name="btnTahsilatYap" IsEnabled="False" />
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Hareketler Tablosu -->
+                <DataGrid Grid.Row="2" x:Name="dgHareketler" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E0E0E0"
+                          RowHeight="35" FontSize="14" Background="Transparent" BorderThickness="1" BorderBrush="#E0E0E0"
+                          AlternatingRowBackground="#F9F9F9" RowBackground="White">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tarih" Binding="{Binding Tarih, StringFormat=\{0:dd.MM.yy HH:mm\}}" Width="120" />
+                        <DataGridTextColumn Header="İşlem" Binding="{Binding IslemTipi}" Width="80" />
+                        <DataGridTextColumn Header="Tutar" Binding="{Binding Tutar, StringFormat={}{0:N2} ₺}" Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Açıklama" Binding="{Binding Aciklama}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

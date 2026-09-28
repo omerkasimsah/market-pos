@@ -1,0 +1,47 @@
+<Window x:Class="MarketPOS.Arayuzler.HesapMakinesiWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Hızlı Hesap Makinesi (F6)" Height="420" Width="320"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#2C3E50"
+        KeyDown="Window_KeyDown">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Ekran / Sonuç Göstergesi -->
+        <Border Grid.Row="0" Background="#34495E" CornerRadius="8" Padding="10" Margin="0,0,0,15">
+            <TextBlock x:Name="txtEkran" Text="0" Foreground="#2ECC71" FontSize="32" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </Border>
+
+        <!-- Rakam ve İşlem Butonları -->
+        <UniformGrid Grid.Row="1" Rows="5" Columns="4">
+            <Button Content="C" Background="#E74C3C" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnTemizle_Click"/>
+            <Button Content="CE" Background="#E67E22" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnTemizle_Click"/>
+            <Button Content="%" Background="#34495E" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnIslem_Click"/>
+            <Button Content="/" Background="#9B59B6" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnIslem_Click"/>
+
+            <Button Content="7" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="8" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="9" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="*" Background="#9B59B6" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnIslem_Click"/>
+
+            <Button Content="4" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="5" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="6" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="-" Background="#9B59B6" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnIslem_Click"/>
+
+            <Button Content="1" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="2" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="3" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="+" Background="#9B59B6" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnIslem_Click"/>
+
+            <Button Content="0" Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="00" Background="#34495E" Foreground="White" FontSize="20" FontWeight="Bold" Margin="3" Click="BtnRakam_Click"/>
+            <Button Content="," Background="#34495E" Foreground="White" FontSize="22" FontWeight="Bold" Margin="3" Click="BtnVirgul_Click"/>
+            <Button Content="=" Background="#2ECC71" Foreground="White" FontSize="24" FontWeight="Bold" Margin="3" Click="BtnEsittir_Click" IsDefault="True"/>
+        </UniformGrid>
+    </Grid>
+</Window>

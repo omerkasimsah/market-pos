@@ -1,0 +1,96 @@
+<Window x:Class="MarketPOS.Arayuzler.TopluVeresiyeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Müşteri &amp; Veresiye Yönetimi" Height="650" Width="900"
+        WindowStartupLocation="CenterScreen" Background="#F4F6F9"
+        Loaded="Window_Loaded">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <Border Grid.Row="0" Background="#8E44AD" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <TextBlock Text="👥 MÜŞTERİ VE VERESİYE TAKİBİ" FontSize="22" FontWeight="Black" Foreground="White"/>
+                    <TextBlock Text="Cari hesaplar, borç tahsilatı ve hatırlatmalar" FontSize="14" Foreground="#EBDEF0" Margin="0,3,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Toplam Alacak: " FontSize="16" Foreground="#EBDEF0" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtToplamAlacak" Text="0.00 ₺" FontSize="24" FontWeight="Black" Foreground="#F1C40F" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Arama ve Filtreleme -->
+        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="12" Margin="0,0,0,10" BorderBrush="#E0E0E0" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="Müşteri Ara:" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtArama" Grid.Column="1" FontSize="16" Padding="8" Margin="0,0,10,0" TextChanged="TxtArama_TextChanged"/>
+                
+                <CheckBox x:Name="chkBakanlar" Grid.Column="2" Content="Sadece Borçlular" IsChecked="True" FontWeight="Bold" Foreground="#E74C3C" VerticalAlignment="Center" Margin="0,0,15,0" Click="ChkBakanlar_Click"/>
+                
+                <Button Grid.Column="3" Content="➕ YENİ MÜŞTERİ" Background="#27AE60" Foreground="White" FontWeight="Bold" FontSize="14" Padding="15,8" BorderThickness="0" Click="BtnYeniMusteri_Click">
+                    <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Müşteri Listesi -->
+        <DataGrid Grid.Row="2" x:Name="dgMusteriler" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                  HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E0E0E0"
+                  RowHeight="45" FontSize="15" AlternatingRowBackground="#F7F9F9" Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Müşteri Adı / Soyadı" Binding="{Binding AdSoyad}" Width="*"/>
+                <DataGridTextColumn Header="Telefon" Binding="{Binding Telefon}" Width="150"/>
+                <DataGridTextColumn Header="Kayıt Tarihi" Binding="{Binding KayitTarihi, StringFormat=dd.MM.yyyy}" Width="120"/>
+                <DataGridTextColumn Header="Güncel Borç" Binding="{Binding BorcMiktari, StringFormat={}{0:N2} ₺}" Width="150">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="Foreground" Value="#E74C3C" />
+                            <Setter Property="HorizontalAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Alt İşlem Butonları -->
+        <Border Grid.Row="3" Background="#ECF0F1" CornerRadius="8" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="💰 TAHSİLAT YAP (Borç Ödeme)" Background="#27AE60" Foreground="White" FontSize="15" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnTahsilat_Click">
+                    <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                </Button>
+                
+                <Button Grid.Column="2" Content="💬 WHATSAPP HATIRLATMA GÖNDER" Background="#25D366" Foreground="White" FontSize="15" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnWhatsApp_Click">
+                    <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                </Button>
+                
+                <Button Grid.Column="4" Content="🧾 HESAP EKSTRESİ (Detay)" Background="#3498DB" Foreground="White" FontSize="15" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="BtnEkstre_Click">
+                    <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

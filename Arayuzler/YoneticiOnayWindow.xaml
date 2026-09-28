@@ -1,0 +1,21 @@
+<Window x:Class="MarketPOS.Arayuzler.YoneticiOnayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Yönetici Onayı" Height="250" Width="400"
+        WindowStartupLocation="CenterOwner" Background="#F4F6F9"
+        WindowStyle="ToolWindow" ResizeMode="NoResize" Loaded="Window_Loaded">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Text="🔒 YÖNETİCİ ONAYI GEREKİYOR" Foreground="#C0392B" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+        
+        <TextBlock Grid.Row="1" Text="Bu işlem için yetkili şifresi giriniz:" FontSize="16" Foreground="#2C3E50" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+        
+        <PasswordBox x:Name="txtSifre" Grid.Row="2" FontSize="24" Height="40" Margin="0,0,0,15" Width="200" HorizontalContentAlignment="Center" KeyDown="TxtSifre_KeyDown"/>
+    </Grid>
+</Window>

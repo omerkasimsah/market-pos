@@ -1,0 +1,65 @@
+<Window x:Class="MarketPOS.Arayuzler.UrunDuzenleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ürün İşlemleri" SizeToContent="WidthAndHeight" MinWidth="400" MaxWidth="500"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Topmost="True" Background="#F4F6F9"
+        Loaded="Window_Loaded">
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Border Padding="25">
+            <StackPanel Orientation="Vertical">
+                
+                <TextBlock x:Name="txtBaslik" Text="Yeni Ürün Ekle" FontSize="22" FontWeight="Bold" Foreground="#34495E" HorizontalAlignment="Center" Margin="0,0,0,20" />
+
+                <!-- Barkod -->
+                <TextBlock Text="Barkod:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtBarkod" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Ürün Adı -->
+                <TextBlock Text="Ürün Adı:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtUrunAdi" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Satış Fiyatı -->
+                <TextBlock Text="Satış Fiyatı (TL):" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtSatisFiyati" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Stok Miktarı -->
+                <TextBlock Text="Stok Miktarı:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtStokMiktari" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Kategori -->
+                <TextBlock Text="Kategori:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtKategori" FontSize="18" Padding="8" Margin="0,0,0,15" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Firma / Tedarikçi -->
+                <TextBlock Text="Firma / Tedarikçi:" FontWeight="Bold" Foreground="#34495E" Margin="0,0,0,5" />
+                <TextBox x:Name="txtFirma" FontSize="18" Padding="8" Margin="0,0,0,25" BorderBrush="#BDC3C7" BorderThickness="1" />
+
+                <!-- Butonlar -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="Kaydet" Background="#2ECC71" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="Kaydet_Click" IsDefault="True">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <Button Grid.Column="2" Content="İptal (ESC)" Background="#E74C3C" Foreground="White" FontSize="16" FontWeight="Bold" Padding="0,12" BorderThickness="0" Click="Iptal_Click" IsCancel="True">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>
