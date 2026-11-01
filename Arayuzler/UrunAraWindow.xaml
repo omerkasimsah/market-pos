@@ -1,0 +1,43 @@
+<Window x:Class="MarketPOS.Arayuzler.UrunAraWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="🔍 Ürün Ara" Height="600" Width="850"
+        WindowStartupLocation="CenterOwner" Background="#F4F6F9" FontFamily="Segoe UI" FontSize="16"
+        Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="🔍 Ürün adı / barkod / kategori:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox x:Name="txtArama" Grid.Column="1" FontSize="20" Padding="8" TextChanged="TxtArama_TextChanged"/>
+        </Grid>
+
+        <DataGrid Grid.Row="1" x:Name="dgUrunler" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                  SelectionMode="Single" HeadersVisibility="Column" RowHeight="40" AlternatingRowBackground="#F7F9F9"
+                  MouseDoubleClick="DgUrunler_MouseDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Barkod" Binding="{Binding Barkod}" Width="150"/>
+                <DataGridTextColumn Header="Ürün Adı" Binding="{Binding UrunAdi}" Width="*"/>
+                <DataGridTextColumn Header="Kategori" Binding="{Binding Kategori}" Width="120"/>
+                <DataGridTextColumn Header="Fiyat" Binding="{Binding SatisFiyati, StringFormat={}{0:N2} ₺}" Width="110"/>
+                <DataGridTextColumn Header="Stok" Binding="{Binding StokMiktari, StringFormat=0.###}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock Text="↑↓ seç, ENTER veya çift tık: sepete ekle, ESC: kapat" Foreground="#7F8C8D" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="✅ Sepete Ekle" Background="#27AE60" Foreground="White" FontWeight="Bold" Padding="20,10" Margin="0,0,10,0" BorderThickness="0" Click="BtnSec_Click"/>
+                <Button Content="Kapat" Background="#95A5A6" Foreground="White" FontWeight="Bold" Padding="20,10" BorderThickness="0" IsCancel="True"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

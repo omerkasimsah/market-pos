@@ -16,5 +16,14 @@ namespace MarketPOS.Modeller
         public string OdemeTuru { get; set; }
         public DateTime Tarih { get; set; }
         public bool IptalEdildi { get; set; }
+        public string SatisNumarasi { get; set; }
+        public decimal NakitTutar { get; set; }
+        public decimal KartTutar { get; set; }
+        public decimal VeresiyeTutar { get; set; }
+        public decimal IskontoTutari { get; set; }
+        public decimal IadeTutari { get; set; }
+        public int? MusteriId { get; set; }
+        public string MusteriAdi { get; set; }
+        public string KullaniciAdi { get; set; }
     }
 }

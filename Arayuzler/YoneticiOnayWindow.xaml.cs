@@ -1,7 +1,10 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Dapper;
+using MarketPOS.Modeller;
+using MarketPOS.Servisler;
 using MarketPOS.Veritabani;
 
 namespace MarketPOS.Arayuzler
@@ -10,11 +13,27 @@ namespace MarketPOS.Arayuzler
     {
         private readonly VeritabaniYoneticisi _db;
         public bool Onaylandi { get; private set; } = false;
+        public string OnaylayanYonetici { get; private set; }
 
         public YoneticiOnayWindow()
         {
             InitializeComponent();
             _db = new VeritabaniYoneticisi();
+        }
+
+        /// <summary>
+        /// Oturumdaki kullanıcı yönetici ise doğrudan, kasiyer ise yönetici şifresi sorarak yetki verir.
+        /// Satır silme, sepet iptali, iade gibi kritik işlemlerden önce çağrılır.
+        /// </summary>
+        public static bool YetkiDogrula(Window sahip, string islemAdi)
+        {
+            if (AktifOturum.YoneticiMi) return true;
+
+            var onay = new YoneticiOnayWindow();
+            if (sahip != null && sahip.IsLoaded) onay.Owner = sahip;
+            bool sonuc = onay.ShowDialog() == true && onay.Onaylandi;
+            if (sonuc) LogServisi.Bilgi($"Yönetici onayı ({onay.OnaylayanYonetici}): {islemAdi}");
+            return sonuc;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -39,20 +58,19 @@ namespace MarketPOS.Arayuzler
             string girilenSifre = txtSifre.Password;
             if (string.IsNullOrEmpty(girilenSifre)) return;
 
-            string hash = BitConverter.ToString(System.Security.Cryptography.SHA256.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes(girilenSifre))).Replace("-", "").ToLower();
-
             try
             {
                 using (var baglanti = _db.BaglantiGetir())
                 {
                     baglanti.Open();
-                    int yetkiliSayisi = baglanti.ExecuteScalar<int>(
-                        "SELECT COUNT(*) FROM Kullanicilar WHERE Sifre = @Sifre AND Rol = 'Yonetici'",
-                        new { Sifre = hash });
+                    var yoneticiler = baglanti.Query<KullaniciDto>(
+                        "SELECT * FROM Kullanicilar WHERE Rol = 'Yonetici' AND AktifMi = 1").ToList();
 
-                    if (yetkiliSayisi > 0)
+                    var yetkili = yoneticiler.FirstOrDefault(y => SifreServisi.Dogrula(girilenSifre, y.Sifre));
+                    if (yetkili != null)
                     {
                         Onaylandi = true;
+                        OnaylayanYonetici = yetkili.KullaniciAdi;
                         this.DialogResult = true;
                         this.Close();
                     }

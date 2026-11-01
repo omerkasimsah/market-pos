@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using MarketPOS.Veritabani;
 using MarketPOS.Modeller;
+using MarketPOS.Servisler;
 using Dapper;
 
 namespace MarketPOS.Arayuzler
@@ -55,20 +56,21 @@ namespace MarketPOS.Arayuzler
             GirisYap();
         }
 
-        private string SifreHashle(string sifre)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(sifre));
-                return BitConverter.ToString(bytes).Replace("-", "").ToLower();
-            }
-        }
+        // Art arda hatalı denemelerde girişi kısa süreliğine kilitle
+        private int _hataliDeneme;
+        private DateTime _kilitBitis = DateTime.MinValue;
 
         private void GirisYap()
         {
             txtHataMesaji.Visibility = Visibility.Collapsed;
             string kullaniciAdi = txtKullaniciAdi.Text.Trim();
             string sifre = txtSifre.Password;
+
+            if (DateTime.Now < _kilitBitis)
+            {
+                HataGoster($"Çok fazla hatalı deneme. {(int)(_kilitBitis - DateTime.Now).TotalSeconds + 1} sn sonra tekrar deneyin.");
+                return;
+            }
 
             if (string.IsNullOrEmpty(kullaniciAdi) || string.IsNullOrEmpty(sifre))
             {
@@ -91,21 +93,47 @@ namespace MarketPOS.Arayuzler
                         return;
                     }
 
-                    string girilenSifreHash = SifreHashle(sifre);
-
-                    if (kullanici.Sifre == girilenSifreHash)
+                    if (SifreServisi.Dogrula(sifre, kullanici.Sifre))
                     {
-                        // Başarılı giriş
+                        _hataliDeneme = 0;
+
+                        // Eski (tuzsuz SHA256) şifreyi güvenli biçime yükselt
+                        if (SifreServisi.YukseltmeGerekli(kullanici.Sifre))
+                        {
+                            baglanti.Execute("UPDATE Kullanicilar SET Sifre = @Sifre WHERE Id = @Id",
+                                new { Sifre = SifreServisi.Hashle(sifre), kullanici.Id });
+                        }
+
                         AktifOturum.OturumAc(kullanici.Id, kullanici.KullaniciAdi, kullanici.AdSoyad, kullanici.Rol);
-                        
+                        LogServisi.Bilgi($"Giriş yapıldı: {kullanici.KullaniciAdi} ({kullanici.Rol})");
+
                         AnaMenuWindow anaMenu = new AnaMenuWindow();
                         anaMenu.Show();
-                        
                         this.Close();
+
+                        // Fabrika şifresiyle çalışılmasın
+                        if (sifre == "1234")
+                        {
+                            MessageBox.Show("Varsayılan şifre (1234) kullanıyorsunuz.\nGüvenliğiniz için lütfen şimdi yeni bir şifre belirleyin.",
+                                "Şifre Değiştirme Gerekli", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            var pencere = new SifreDegistirWindow { Owner = anaMenu };
+                            pencere.ShowDialog();
+                        }
                     }
                     else
                     {
-                        HataGoster("Hatalı şifre girdiniz.");
+                        _hataliDeneme++;
+                        LogServisi.Bilgi($"Hatalı giriş denemesi: {kullaniciAdi}");
+                        if (_hataliDeneme >= 5)
+                        {
+                            _kilitBitis = DateTime.Now.AddSeconds(30);
+                            _hataliDeneme = 0;
+                            HataGoster("5 hatalı deneme yapıldı. Giriş 30 saniye kilitlendi.");
+                        }
+                        else
+                        {
+                            HataGoster("Hatalı şifre girdiniz.");
+                        }
                     }
                 }
             }

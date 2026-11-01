@@ -61,7 +61,8 @@ namespace MarketPOS.Arayuzler
 
                     // Terazi barkodu kontrolü (27,28,29)
                     string orjinalBarkod = barkod;
-                    if (barkod.Length == 13 && (barkod.StartsWith("27") || barkod.StartsWith("28") || barkod.StartsWith("29")))
+                    var onekler = MarketPOS.Servisler.AyarServisi.Oku(MarketPOS.Servisler.AyarServisi.TeraziOnekleri).Split(',');
+                    if (barkod.Length == 13 && Array.Exists(onekler, o => o.Trim().Length == 2 && barkod.StartsWith(o.Trim())))
                     {
                         barkod = barkod.Substring(2, 5);
                     }
@@ -89,6 +90,7 @@ namespace MarketPOS.Arayuzler
             }
             catch (Exception ex)
             {
+                MarketPOS.Servisler.LogServisi.Hata("Fiyat sorgulama hatası", ex);
                 txtUrunAdi.Text = "HATA OLUŞTU!";
                 txtFiyat.Text = "";
             }

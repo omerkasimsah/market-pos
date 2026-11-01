@@ -83,8 +83,8 @@ namespace MarketPOS.Arayuzler
                         });
                     }
 
-                    // 2. Kritik & Eksi Stok Uyarıları (Stok <= 5)
-                    string stokSorgu = "SELECT Id, UrunAdi, StokMiktari FROM Urunler WHERE StokMiktari <= 5 ORDER BY StokMiktari ASC";
+                    // 2. Kritik & Eksi Stok Uyarıları (Ayarlardaki kritik seviye)
+                    string stokSorgu = $"SELECT Id, UrunAdi, StokMiktari FROM Urunler WHERE StokMiktari <= {MarketPOS.Servisler.AyarServisi.OkuDecimal(MarketPOS.Servisler.AyarServisi.KritikStokSeviyesi, 5).ToString(System.Globalization.CultureInfo.InvariantCulture)} ORDER BY StokMiktari ASC";
                     var stokListesi = baglanti.Query<Urun>(stokSorgu);
 
                     foreach (var item in stokListesi)

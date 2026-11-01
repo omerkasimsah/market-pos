@@ -33,6 +33,22 @@ namespace MarketPOS.Arayuzler
             RaporlariYukle();
         }
 
+        private void BtnYenile_Click(object sender, RoutedEventArgs e) => RaporlariYukle();
+
+        private void BtnKismiIade_Click(object sender, RoutedEventArgs e)
+        {
+            var pencere = new IadeIslemWindow(dgSatislar.SelectedItem is Satis secili ? (secili.SatisNumarasi ?? secili.FisNo) : null);
+            pencere.Owner = Window.GetWindow(this);
+            pencere.ShowDialog();
+            RaporlariYukle();
+        }
+
+        private void BtnZRaporu_Click(object sender, RoutedEventArgs e)
+        {
+            var pencere = new ZRaporuWindow { Owner = Window.GetWindow(this) };
+            pencere.ShowDialog();
+        }
+
         public void RaporlariYukle()
         {
             using (var baglanti = _db.BaglantiGetir())
@@ -47,25 +63,18 @@ namespace MarketPOS.Arayuzler
                 var satislar = baglanti.Query<Satis>(satisSorgu, new { Bugun = bugun, Yarin = yarin }).ToList();
                 dgSatislar.ItemsSource = satislar;
 
-                // 2. Kasa özetlerini hesapla (İptal edilenler hariç)
-                var gecerliSatislar = satislar.Where(s => !s.IptalEdildi).ToList();
-                decimal ciro = gecerliSatislar.Sum(s => s.ToplamTutar);
-                decimal nakit = gecerliSatislar.Where(s => s.OdemeTuru == "Nakit").Sum(s => s.ToplamTutar);
-                decimal krediKarti = gecerliSatislar.Where(s => s.OdemeTuru == "Kredi Kartı").Sum(s => s.ToplamTutar);
-                decimal veresiye = gecerliSatislar.Where(s => s.OdemeTuru == "Veresiye").Sum(s => s.ToplamTutar);
-
-                txtCiro.Text = $"{ciro:N2} ₺";
-                txtNakit.Text = $"{nakit:N2} ₺";
-                txtKrediKarti.Text = $"{krediKarti:N2} ₺";
-                txtVeresiye.Text = $"{veresiye:N2} ₺";
-
-                // 3. Bugünkü Giderleri ve Net Kar/Zarar hesabını yap
-                string giderSorgu = "SELECT SUM(Tutar) FROM Giderler WHERE Tarih >= @Bugun AND Tarih < @Yarin";
-                decimal bugunkuGiderler = baglanti.ExecuteScalar<decimal?>(giderSorgu, new { Bugun = bugun, Yarin = yarin }) ?? 0m;
-
-                decimal netKarZarar = ciro - bugunkuGiderler;
-                txtNetKarZarar.Text = $"{netKarZarar:N2} ₺";
             }
+
+            // 2. Kasa özetleri (bölünmüş ödemeler, iadeler ve maliyet dahil - Z raporu ile aynı hesap)
+            var ozet = new KasaServisi().Hesapla(DateTime.Today);
+            txtCiro.Text = $"{ozet.NetCiro:N2} ₺";
+            txtNakit.Text = $"{ozet.Nakit - ozet.NakitIade:N2} ₺";
+            txtKrediKarti.Text = $"{ozet.Kart:N2} ₺";
+            txtVeresiye.Text = $"{ozet.Veresiye:N2} ₺";
+
+            // 3. Net Kâr = Net Ciro - Satılan Malın Maliyeti - Giderler
+            txtNetKarZarar.Text = $"{ozet.NetKar:N2} ₺";
+            txtNetKarZarar.ToolTip = $"Net ciro {ozet.NetCiro:N2} - maliyet {ozet.Maliyet:N2} - gider {ozet.Gider:N2}";
             
             dgSatisDetay.ItemsSource = null;
         }
@@ -92,21 +101,14 @@ namespace MarketPOS.Arayuzler
         {
             if (dgSatislar.SelectedItem is Satis seciliSatis)
             {
-                using (var baglanti = _db.BaglantiGetir())
+                var fis = new SatisServisi().FisBilgisiGetir(seciliSatis.Id);
+                if (fis != null && _yaziciServisi.FisYazdir(fis))
                 {
-                    baglanti.Open();
-                    string sorgu = "SELECT * FROM SatisDetaylari WHERE SatisId = @SatisId";
-                    var detaylar = baglanti.Query<SatisDetay>(sorgu, new { SatisId = seciliSatis.Id }).ToList();
-
-                    bool basarili = _yaziciServisi.FisYazdir(seciliSatis, detaylar);
-                    if (basarili)
-                    {
-                        MessageBox.Show("Fiş tekrar yazıcıya gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Fiş yazdırılırken bir sorun oluştu.", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
+                    MessageBox.Show("Fiş tekrar yazıcıya gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Fiş yazdırılamadı. Ayarlar ekranından fiş yazıcısının seçili olduğunu kontrol edin.", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             else
@@ -125,43 +127,13 @@ namespace MarketPOS.Arayuzler
                     return;
                 }
 
-                var cevap = MessageBox.Show($"'{seciliSatis.FisNo}' numaralı satışı iptal/iade etmek istediğinize emin misiniz? Bu işlem stokları geri yükleyecektir.", "Satış İptal", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                
+                var cevap = MessageBox.Show($"'{seciliSatis.SatisNumarasi ?? seciliSatis.FisNo}' numaralı satışı tamamen iptal etmek istediğinize emin misiniz? Stoklar geri yüklenecek, veresiye kısmı müşteri borcundan düşülecektir.", "Satış İptal", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
                 if (cevap == MessageBoxResult.Yes)
                 {
                     try
                     {
-                        using (var baglanti = _db.BaglantiGetir())
-                        {
-                            baglanti.Open();
-                            using (var islem = baglanti.BeginTransaction())
-                            {
-                                // 1. Detayları bul ve stokları geri ekle
-                                var detaylar = baglanti.Query<SatisDetay>("SELECT * FROM SatisDetaylari WHERE SatisId = @SatisId", new { SatisId = seciliSatis.Id }).ToList();
-                                foreach(var detay in detaylar)
-                                {
-                                    baglanti.Execute("UPDATE Urunler SET StokMiktari = StokMiktari + @Adet WHERE Id = @UrunId", new { Adet = detay.Adet, UrunId = detay.UrunId }, islem);
-                                }
-
-                                // 2. Veresiye ise müşteri borcunu düş ve işlemi iptal et
-                                if (seciliSatis.OdemeTuru == "Veresiye")
-                                {
-                                    // SatisId ile ilişkili işlemi bul
-                                    var musteriIslemi = baglanti.QueryFirstOrDefault<Islem>("SELECT * FROM Islemler WHERE SatisId = @SatisId", new { SatisId = seciliSatis.Id }, islem);
-                                    if (musteriIslemi != null && musteriIslemi.MusteriId.HasValue)
-                                    {
-                                        baglanti.Execute("UPDATE Musteriler SET BorcMiktari = BorcMiktari - @Tutar WHERE Id = @MusteriId", new { Tutar = seciliSatis.ToplamTutar, MusteriId = musteriIslemi.MusteriId.Value }, islem);
-                                        // İşleme iade açıklamasıyla ters kayıt at veya işlemi sil
-                                        baglanti.Execute("DELETE FROM Islemler WHERE Id = @Id", new { Id = musteriIslemi.Id }, islem);
-                                    }
-                                }
-
-                                // 3. Satışı İptal Edildi olarak işaretle
-                                baglanti.Execute("UPDATE Satislar SET IptalEdildi = 1 WHERE Id = @SatisId", new { SatisId = seciliSatis.Id }, islem);
-
-                                islem.Commit();
-                            }
-                        }
+                        new SatisServisi().SatisIptalEt(seciliSatis.Id);
                         MessageBox.Show("Satış başarıyla iptal edildi ve stoklar geri yüklendi.", "İptal Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
                         RaporlariYukle();
                     }

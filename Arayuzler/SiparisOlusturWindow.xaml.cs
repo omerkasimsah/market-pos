@@ -27,7 +27,7 @@ namespace MarketPOS.Arayuzler
             using (var baglanti = _db.BaglantiGetir())
             {
                 baglanti.Open();
-                string sorgu = "SELECT * FROM Urunler WHERE StokMiktari <= 5 ORDER BY Firma, UrunAdi";
+                string sorgu = $"SELECT * FROM Urunler WHERE StokMiktari <= {MarketPOS.Servisler.AyarServisi.OkuDecimal(MarketPOS.Servisler.AyarServisi.KritikStokSeviyesi, 5).ToString(System.Globalization.CultureInfo.InvariantCulture)} ORDER BY Firma, UrunAdi";
                 _kritikUrunler = baglanti.Query<Urun>(sorgu).ToList();
                 dgSiparisler.ItemsSource = _kritikUrunler;
             }
@@ -41,21 +41,25 @@ namespace MarketPOS.Arayuzler
                 return;
             }
 
-            YaziciServisi yazici = new YaziciServisi();
-            List<SepetUrunu> sepet = new List<SepetUrunu>();
-            foreach (var u in _kritikUrunler)
+            var sb = new System.Text.StringBuilder();
+            string cizgi = new string('-', YaziciServisi.FisGenisligiKarakter);
+            sb.AppendLine(YaziciServisi.OrtalaSatir("TOPTANCI SİPARİŞ LİSTESİ"));
+            sb.AppendLine($"Tarih: {DateTime.Now:dd.MM.yyyy HH:mm}");
+            sb.AppendLine(cizgi);
+            foreach (var grup in _kritikUrunler.GroupBy(u => string.IsNullOrWhiteSpace(u.Firma) ? "Firma belirtilmemiş" : u.Firma))
             {
-                sepet.Add(new SepetUrunu
+                sb.AppendLine($"[{grup.Key}]");
+                foreach (var u in grup)
                 {
-                    UrunId = u.Id,
-                    UrunAdi = $"[{u.Firma}] {u.UrunAdi}",
-                    Adet = 10, // Varsayılan sipariş adedi
-                    BirimFiyat = u.SatisFiyati
-                });
+                    sb.AppendLine(YaziciServisi.IkiSutun("  " + u.UrunAdi, $"stok {u.StokMiktari:0.###}"));
+                }
             }
+            sb.AppendLine(cizgi);
 
-            yazici.FisYazdir("SIPARIS_" + DateTime.Now.ToString("yyMMdd"), DateTime.Now, sepet, 0, "SIPARIS LISTESI", "TOPTANCI SIPARIS FORMU");
-            MessageBox.Show("Kritik Stok Sipariş Listesi yazıcıya gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (new YaziciServisi().MetinYazdir(sb.ToString()))
+                MessageBox.Show("Kritik Stok Sipariş Listesi yazıcıya gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show("Liste yazdırılamadı. Ayarlar ekranından fiş yazıcısını seçin.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void BtnKapat_Click(object sender, RoutedEventArgs e)

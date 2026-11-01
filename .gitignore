@@ -11,6 +11,10 @@
 *.sqlite-shm
 *.sqlite-wal
 Yedekler/*.sqlite
+Yedekler/*.db
+Yedekler/*.csv
+MarketVeritabani.sqlite
+Loglar/
 
 ## IDE & Notes
 .obsidian/

@@ -12,5 +12,7 @@ namespace MarketPOS.Modeller
         public decimal Adet { get; set; }
         public decimal BirimFiyat { get; set; }
         public decimal ToplamFiyat { get; set; }
+        public decimal KdvOrani { get; set; }
+        public decimal AlisFiyati { get; set; }
     }
 }

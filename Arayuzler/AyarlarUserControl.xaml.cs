@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Dapper;
 using MarketPOS.Servisler;
 using MarketPOS.Veritabani;
 
@@ -18,14 +19,12 @@ namespace MarketPOS.Arayuzler
 
     public partial class AyarlarUserControl : UserControl
     {
-        private readonly VeritabaniYoneticisi _db;
         private readonly PosCihazServisi _posServisi;
         private readonly YaziciServisi _yaziciServisi;
 
         public AyarlarUserControl()
         {
             InitializeComponent();
-            _db = new VeritabaniYoneticisi();
             _posServisi = new PosCihazServisi();
             _yaziciServisi = new YaziciServisi();
         }
@@ -38,62 +37,68 @@ namespace MarketPOS.Arayuzler
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             YazicilariYukle();
+            PortlariYukle();
             AyarlariYukle();
+            YedekBilgisiniGuncelle();
         }
 
         private void YazicilariYukle()
         {
             cmbYazici.Items.Clear();
+            cmbYazici.Items.Add("");   // Boş seçim = fiş basma
             foreach (string printer in PrinterSettings.InstalledPrinters)
             {
                 cmbYazici.Items.Add(printer);
             }
-
-            PrinterSettings defaultSettings = new PrinterSettings();
-            if (!string.IsNullOrEmpty(defaultSettings.PrinterName) && cmbYazici.Items.Contains(defaultSettings.PrinterName))
-            {
-                cmbYazici.SelectedItem = defaultSettings.PrinterName;
-            }
-            else if (cmbYazici.Items.Count > 0)
-            {
-                cmbYazici.SelectedIndex = 0;
-            }
         }
+
+        private void PortlariYukle()
+        {
+            // Bilgisayarda gerçekten bulunan portlar + standart COM1-COM9
+            var portlar = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+            try { foreach (var p in System.IO.Ports.SerialPort.GetPortNames()) portlar.Add(p); } catch { }
+            for (int i = 1; i <= 9; i++) portlar.Add("COM" + i);
+
+            cmbComPort.Items.Clear();
+            foreach (var p in portlar.OrderBy(p => p.Length).ThenBy(p => p)) cmbComPort.Items.Add(p);
+        }
+
+        private static void TagIleSec(ComboBox combo, string deger)
+        {
+            foreach (ComboBoxItem item in combo.Items)
+            {
+                if (item.Tag?.ToString() == deger) { combo.SelectedItem = item; return; }
+            }
+            if (combo.Items.Count > 0) combo.SelectedIndex = 0;
+        }
+
+        private static string SeciliTag(ComboBox combo) => (combo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "";
 
         private void AyarlariYukle()
         {
             try
             {
-                using (var baglanti = _db.BaglantiGetir())
-                {
-                    baglanti.Open();
-                    var ayarListesi = baglanti.Query<AyarModeli>("SELECT Anahtar, Deger FROM Ayarlar").ToList();
-                    var ayarlar = ayarListesi.ToDictionary(x => x.Anahtar, x => x.Deger);
+                txtDukkanAdi.Text = AyarServisi.Oku(AyarServisi.DukkanAdi);
+                txtDukkanAdres.Text = AyarServisi.Oku(AyarServisi.DukkanAdres);
+                txtDukkanTelefon.Text = AyarServisi.Oku(AyarServisi.DukkanTelefon);
+                txtVergiBilgisi.Text = AyarServisi.Oku(AyarServisi.VergiBilgisi);
+                txtFisAltNotu.Text = AyarServisi.Oku(AyarServisi.FisAltNotu);
 
-                    if (ayarlar.ContainsKey("DukkanAdi")) txtDukkanAdi.Text = ayarlar["DukkanAdi"];
-                    else txtDukkanAdi.Text = "SÜPERMARKET POS";
+                string port = AyarServisi.Oku(AyarServisi.PosComPort);
+                if (!cmbComPort.Items.Contains(port)) cmbComPort.Items.Add(port);
+                cmbComPort.SelectedItem = port;
 
-                    if (ayarlar.ContainsKey("FisAltNotu")) txtFisAltNotu.Text = ayarlar["FisAltNotu"];
-                    else txtFisAltNotu.Text = "BİZİ TERCİH ETTİĞİNİZ İÇİN TEŞEKKÜRLER!";
+                string yazici = AyarServisi.Oku(AyarServisi.YaziciAdi);
+                if (!string.IsNullOrEmpty(yazici) && !cmbYazici.Items.Contains(yazici)) cmbYazici.Items.Add(yazici);
+                cmbYazici.SelectedItem = yazici;
 
-                    if (ayarlar.ContainsKey("PosComPort"))
-                    {
-                        string port = ayarlar["PosComPort"];
-                        foreach (ComboBoxItem item in cmbComPort.Items)
-                        {
-                            if (item.Content.ToString() == port)
-                            {
-                                cmbComPort.SelectedItem = item;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (ayarlar.ContainsKey("YaziciAdi") && cmbYazici.Items.Contains(ayarlar["YaziciAdi"]))
-                    {
-                        cmbYazici.SelectedItem = ayarlar["YaziciAdi"];
-                    }
-                }
+                TagIleSec(cmbFisGenisligi, AyarServisi.OkuInt(AyarServisi.FisGenisligi, 32) >= 48 ? "48" : "32");
+                TagIleSec(cmbFisModu, AyarServisi.Oku(AyarServisi.FisYazdirmaModu));
+                chkCekmece.IsChecked = AyarServisi.OkuBool(AyarServisi.CekmeceAc);
+                chkEksiStok.IsChecked = AyarServisi.OkuBool(AyarServisi.EksiStokSatis);
+                txtTeraziOnekleri.Text = AyarServisi.Oku(AyarServisi.TeraziOnekleri);
+                TagIleSec(cmbTeraziTipi, AyarServisi.Oku(AyarServisi.TeraziBarkodTipi));
+                txtKritikStok.Text = AyarServisi.Oku(AyarServisi.KritikStokSeviyesi);
             }
             catch (Exception ex)
             {
@@ -103,24 +108,37 @@ namespace MarketPOS.Arayuzler
 
         private void BtnKaydet_Click(object sender, RoutedEventArgs e)
         {
+            if (!decimal.TryParse(txtKritikStok.Text.Trim(), out decimal kritik) || kritik < 0)
+            {
+                MessageBox.Show("Kritik stok seviyesi geçerli bir sayı olmalıdır.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string onekler = string.Join(",", txtTeraziOnekleri.Text.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(o => o.Trim()).Where(o => o.Length == 2 && o.All(char.IsDigit)));
+
             try
             {
-                string dukkanAdi = txtDukkanAdi.Text.Trim();
-                string fisAltNotu = txtFisAltNotu.Text.Trim();
-                string posPort = (cmbComPort.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "COM3";
-                string yazici = cmbYazici.SelectedItem?.ToString() ?? "";
-
-                using (var baglanti = _db.BaglantiGetir())
+                AyarServisi.Kaydet(new Dictionary<string, string>
                 {
-                    baglanti.Open();
-                    string sql = "INSERT INTO Ayarlar (Anahtar, Deger) VALUES (@Anahtar, @Deger) ON CONFLICT(Anahtar) DO UPDATE SET Deger = @Deger";
+                    { AyarServisi.DukkanAdi, txtDukkanAdi.Text.Trim() },
+                    { AyarServisi.DukkanAdres, txtDukkanAdres.Text.Trim() },
+                    { AyarServisi.DukkanTelefon, txtDukkanTelefon.Text.Trim() },
+                    { AyarServisi.VergiBilgisi, txtVergiBilgisi.Text.Trim() },
+                    { AyarServisi.FisAltNotu, txtFisAltNotu.Text.Trim() },
+                    { AyarServisi.PosComPort, cmbComPort.SelectedItem?.ToString() ?? "COM3" },
+                    { AyarServisi.YaziciAdi, cmbYazici.SelectedItem?.ToString() ?? "" },
+                    { AyarServisi.FisGenisligi, SeciliTag(cmbFisGenisligi) },
+                    { AyarServisi.FisYazdirmaModu, SeciliTag(cmbFisModu) },
+                    { AyarServisi.CekmeceAc, chkCekmece.IsChecked == true ? "1" : "0" },
+                    { AyarServisi.EksiStokSatis, chkEksiStok.IsChecked == true ? "1" : "0" },
+                    { AyarServisi.TeraziOnekleri, onekler },
+                    { AyarServisi.TeraziBarkodTipi, SeciliTag(cmbTeraziTipi) },
+                    { AyarServisi.KritikStokSeviyesi, kritik.ToString() }
+                });
 
-                    baglanti.Execute(sql, new { Anahtar = "DukkanAdi", Deger = dukkanAdi });
-                    baglanti.Execute(sql, new { Anahtar = "FisAltNotu", Deger = fisAltNotu });
-                    baglanti.Execute(sql, new { Anahtar = "PosComPort", Deger = posPort });
-                    baglanti.Execute(sql, new { Anahtar = "YaziciAdi", Deger = yazici });
-                }
-
+                LogServisi.Bilgi("Sistem ayarları güncellendi");
+                txtTeraziOnekleri.Text = onekler;
                 MessageBox.Show("Sistem ayarları başarıyla kaydedildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -131,9 +149,9 @@ namespace MarketPOS.Arayuzler
 
         private void BtnTestPos_Click(object sender, RoutedEventArgs e)
         {
-            string posPort = (cmbComPort.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "COM3";
+            string posPort = cmbComPort.SelectedItem?.ToString() ?? "COM3";
             var sonuc = _posServisi.SatisGonder(1.00m, "TEST" + DateTime.Now.ToString("HHmmss"), posPort, 3);
-            
+
             if (sonuc.Basarili)
             {
                 MessageBox.Show($"POS Cihazı Testi BAŞARILI!\n\nPort: {posPort}\nYanıt: {sonuc.Mesaj}\nOnay Kodu: {sonuc.OnayKodu}", "POS Testi Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -153,20 +171,83 @@ namespace MarketPOS.Arayuzler
                 return;
             }
 
-            var testUrunleri = new List<Modeller.SepetUrunu>
+            if (_yaziciServisi.DenemeFisiYazdir(yazici))
             {
-                new Modeller.SepetUrunu { UrunAdi = "TEST ÜRÜNÜ (DENEME)", Adet = 1, BirimFiyat = 10.00m }
-            };
-
-            bool ok = _yaziciServisi.FisYazdir("TEST-001", DateTime.Now, testUrunleri, 10.00m, "Nakit", "DENEME FİŞİ YAZDIRMA TESTİ");
-            if (ok)
-            {
-                MessageBox.Show($"'{yazici}' yazıcısına deneme fişi gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"'{yazici}' yazıcısına deneme fişi gönderildi.\n\nNot: Fiş başlığı kayıtlı ayarlardan alınır; değişiklik yaptıysanız önce kaydedin.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
                 MessageBox.Show($"'{yazici}' yazıcısına fiş yazdırılırken hata oluştu.", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        #region Yedekleme
+
+        private void YedekBilgisiniGuncelle()
+        {
+            try
+            {
+                var son = new DirectoryInfo(OtomatikYedeklemeServisi.YedekKlasoru).GetFiles("Yedek_*.db")
+                    .OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+                txtYedekBilgi.Text = $"Veritabanı: {VeritabaniYoneticisi.VeritabaniYolu}\n" +
+                    (son != null ? $"Son yedek: {son.LastWriteTime:dd.MM.yyyy HH:mm} ({son.Length / 1024} KB)" : "Henüz yedek yok.");
+            }
+            catch { }
+        }
+
+        private void BtnYedekAl_Click(object sender, RoutedEventArgs e)
+        {
+            string yol = new OtomatikYedeklemeServisi().YedekAl();
+            YedekBilgisiniGuncelle();
+            if (yol != null)
+                MessageBox.Show($"Yedek alındı:\n{yol}", "Yedekleme", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show("Yedek alınamadı. Ayrıntılar için Loglar klasörüne bakın.", "Yedekleme", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void BtnYedekKlasoru_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Directory.CreateDirectory(OtomatikYedeklemeServisi.YedekKlasoru);
+                Process.Start("explorer.exe", $"\"{OtomatikYedeklemeServisi.YedekKlasoru}\"");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnGeriYukle_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Geri yüklenecek yedeği seçin",
+                Filter = "MarketPOS Yedeği (*.db;*.sqlite)|*.db;*.sqlite",
+                InitialDirectory = OtomatikYedeklemeServisi.YedekKlasoru
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            var cevap = MessageBox.Show(
+                $"DİKKAT! Mevcut tüm veriler seçilen yedekteki verilerle DEĞİŞTİRİLECEK:\n\n{Path.GetFileName(dialog.FileName)}\n\n" +
+                "Geri yüklemeden önce mevcut durumun güvenlik yedeği otomatik alınır.\nDevam edilsin mi?",
+                "Yedekten Geri Yükle", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (cevap != MessageBoxResult.Yes) return;
+
+            try
+            {
+                new OtomatikYedeklemeServisi().GeriYukle(dialog.FileName);
+                MessageBox.Show("Yedek başarıyla geri yüklendi.\nAçık olan satış/stok ekranlarını kapatıp yeniden açın.", "Geri Yükleme", MessageBoxButton.OK, MessageBoxImage.Information);
+                AyarlariYukle();
+                YedekBilgisiniGuncelle();
+            }
+            catch (Exception ex)
+            {
+                LogServisi.Hata("Geri yükleme hatası", ex);
+                MessageBox.Show($"Geri yükleme başarısız:\n{ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
     }
 }

@@ -16,6 +16,10 @@ namespace MarketPOS.Modeller
         public string Barkod { get; set; }
         public string UrunAdi { get; set; }
         public decimal BirimFiyat { get; set; }
+        public decimal KdvOrani { get; set; }
+        public decimal AlisFiyati { get; set; }
+        /// <summary>Terazi barkodundan (gramajlı) gelen satırlar birleştirilmez, her tartım ayrı satırdır.</summary>
+        public bool TeraziUrunu { get; set; }
 
         public decimal Adet
         {
@@ -31,7 +35,8 @@ namespace MarketPOS.Modeller
             }
         }
 
-        public decimal ToplamFiyat => Adet * BirimFiyat;
+        // Gramajlı ürünlerde kuruş küsuratı olmasın: satır tutarı kuruşa yuvarlanır (0,005 yukarı)
+        public decimal ToplamFiyat => Math.Round(Adet * BirimFiyat, 2, MidpointRounding.AwayFromZero);
 
         public event PropertyChangedEventHandler PropertyChanged;
         

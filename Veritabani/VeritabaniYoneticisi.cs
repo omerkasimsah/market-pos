@@ -2,6 +2,7 @@ using System;
 using System.Data.SQLite;
 using System.IO;
 using Dapper;
+using MarketPOS.Servisler;
 
 namespace MarketPOS.Veritabani
 {
@@ -11,8 +12,33 @@ namespace MarketPOS.Veritabani
     /// </summary>
     public class VeritabaniYoneticisi
     {
-        private const string VeritabaniDosyasi = "MarketVeritabani.sqlite";
-        private readonly string baglantiDizesi = $"Data Source={VeritabaniDosyasi};Version=3;";
+        private const string VeritabaniDosyaAdi = "MarketVeritabani.sqlite";
+
+        /// <summary>
+        /// Veritabanı dosyasının tam yolu. Program kısayoldan veya farklı bir klasörden açılsa bile
+        /// her zaman aynı dosya kullanılır. Eski sürümlerde çalışma klasörüne oluşturulmuş bir veritabanı
+        /// varsa veri kaybı olmaması için o dosya kullanılmaya devam edilir.
+        /// </summary>
+        public static readonly string VeritabaniYolu = VeritabaniYolunuBelirle();
+
+        /// <summary>Veritabanının bulunduğu klasör (Yedekler klasörü de burada tutulur).</summary>
+        public static string VeriKlasoru => Path.GetDirectoryName(VeritabaniYolu);
+
+        private static readonly string baglantiDizesi =
+            $"Data Source={VeritabaniYolu};Version=3;Journal Mode=WAL;Synchronous=Normal;BusyTimeout=5000;";
+
+        private static bool _hazirlandi;
+        private static readonly object _hazirlikKilidi = new object();
+
+        private static string VeritabaniYolunuBelirle()
+        {
+            string uygulamaYolu = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, VeritabaniDosyaAdi);
+            string calismaYolu = Path.GetFullPath(VeritabaniDosyaAdi);
+
+            if (File.Exists(uygulamaYolu)) return uygulamaYolu;
+            if (File.Exists(calismaYolu)) return calismaYolu;
+            return uygulamaYolu;
+        }
 
         /// <summary>
         /// Veritabanı bağlantısı döndürür (Dapper ile kullanım içindir).
@@ -25,12 +51,29 @@ namespace MarketPOS.Veritabani
 
         /// <summary>
         /// Uygulama ilk açıldığında veritabanının ve tabloların var olup olmadığını kontrol eder, yoksa oluşturur.
+        /// Şema kontrolü uygulama ömrü boyunca bir kez yapılır (her pencere açılışında tekrarlanmaz).
         /// </summary>
         public void VeritabaniniHazirla()
         {
-            if (!File.Exists(VeritabaniDosyasi))
+            lock (_hazirlikKilidi)
             {
-                SQLiteConnection.CreateFile(VeritabaniDosyasi);
+                if (_hazirlandi) return;
+                SemayiOlustur();
+                _hazirlandi = true;
+            }
+        }
+
+        /// <summary>Geri yükleme sonrası şemanın tekrar kontrol edilmesini sağlar.</summary>
+        public static void HazirlikDurumunuSifirla()
+        {
+            lock (_hazirlikKilidi) { _hazirlandi = false; }
+        }
+
+        private void SemayiOlustur()
+        {
+            if (!File.Exists(VeritabaniYolu))
+            {
+                SQLiteConnection.CreateFile(VeritabaniYolu);
             }
 
             using (var baglanti = BaglantiGetir())
@@ -184,13 +227,12 @@ namespace MarketPOS.Veritabani
                     );";
                 baglanti.Execute(kullanicilarTablosu);
 
-                // Varsayılan yönetici hesabı oluştur (admin / 1234)
-                int adminSayisi = baglanti.ExecuteScalar<int>("SELECT COUNT(*) FROM Kullanicilar WHERE KullaniciAdi = 'admin'");
-                if (adminSayisi == 0)
+                // Hiç yönetici yoksa varsayılan hesap oluştur (admin / 1234) - ilk girişte şifre değiştirilmesi istenir
+                int yoneticiSayisi = baglanti.ExecuteScalar<int>("SELECT COUNT(*) FROM Kullanicilar WHERE Rol = 'Yonetici'");
+                if (yoneticiSayisi == 0)
                 {
-                    string hash = BitConverter.ToString(System.Security.Cryptography.SHA256.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes("1234"))).Replace("-", "").ToLower();
-                    baglanti.Execute("INSERT INTO Kullanicilar (KullaniciAdi, Sifre, AdSoyad, Rol, AktifMi, KayitTarihi) VALUES ('admin', @Sifre, 'Yönetici', 'Yonetici', 1, @Tarih)",
-                        new { Sifre = hash, Tarih = DateTime.Now });
+                    baglanti.Execute("INSERT OR IGNORE INTO Kullanicilar (KullaniciAdi, Sifre, AdSoyad, Rol, AktifMi, KayitTarihi) VALUES ('admin', @Sifre, 'Yönetici', 'Yonetici', 1, @Tarih)",
+                        new { Sifre = SifreServisi.Hashle("1234"), Tarih = DateTime.Now });
                 }
 
                 // Z Raporları tablosu (Gün sonu raporu)
@@ -250,6 +292,26 @@ namespace MarketPOS.Veritabani
                         ToplamFiyat DECIMAL(18,2)
                     );";
                 baglanti.Execute(toptanciFaturaDetaylariTablosu);
+
+                // ===== v3.0 Migrasyonları (iskonto, KDV, maliyet ve kasa sayımı) =====
+                try { baglanti.Execute("ALTER TABLE Satislar ADD COLUMN IskontoTutari DECIMAL(18,2) DEFAULT 0;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE SatisDetaylari ADD COLUMN KdvOrani REAL DEFAULT 0;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE SatisDetaylari ADD COLUMN AlisFiyati DECIMAL(18,2) DEFAULT 0;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE Iadeler ADD COLUMN KullaniciAdi TEXT;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE ZRaporlari ADD COLUMN GunTarihi TEXT;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE ZRaporlari ADD COLUMN BeklenenNakit DECIMAL(18,2) DEFAULT 0;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE ZRaporlari ADD COLUMN SayilanNakit DECIMAL(18,2) DEFAULT 0;"); } catch { }
+                try { baglanti.Execute("ALTER TABLE ZRaporlari ADD COLUMN KasaFarki DECIMAL(18,2) DEFAULT 0;"); } catch { }
+
+                // Sorgu performansı için indeksler (binlerce satışta raporların hızlı açılması)
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_Satislar_Tarih ON Satislar(Tarih);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_Satislar_SatisNumarasi ON Satislar(SatisNumarasi);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_SatisDetaylari_SatisId ON SatisDetaylari(SatisId);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_SatisDetaylari_UrunId ON SatisDetaylari(UrunId);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_Islemler_MusteriId ON Islemler(MusteriId);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_Iadeler_SatisId ON Iadeler(SatisId);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_UrunPartileri_UrunId ON UrunPartileri(UrunId);");
+                baglanti.Execute("CREATE INDEX IF NOT EXISTS IX_Urunler_UrunAdi ON Urunler(UrunAdi);");
             }
         }
 

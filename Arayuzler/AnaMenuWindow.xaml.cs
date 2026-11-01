@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using Dapper;
@@ -39,7 +40,6 @@ namespace MarketPOS.Arayuzler
             AktifPencere = this;
             _db = new VeritabaniYoneticisi();
             _db.VeritabaniniHazirla();
-            _db.TestVerileriEkle();
 
             _yedekServisi = new OtomatikYedeklemeServisi();
             _yedekServisi.ZamanlayiciyiBaslat();
@@ -55,6 +55,9 @@ namespace MarketPOS.Arayuzler
 
         private void YetkileriKontrolEt()
         {
+            txtKullanici.Text = Modeller.AktifOturum.KullaniciId == 0 ? "" :
+                $"👤 {Modeller.AktifOturum.AdSoyad} ({(Modeller.AktifOturum.YoneticiMi ? "Yönetici" : "Kasiyer")})";
+
             if (Modeller.AktifOturum.KullaniciId == 0)
             {
                 // Test ortamı vb. için oturum açılmamışsa, varsayılan Yönetici gibi davran
@@ -87,6 +90,15 @@ namespace MarketPOS.Arayuzler
 
                 btnAyarlar.IsEnabled = false;
                 btnAyarlar.ToolTip = "Bu bölüm sadece Yöneticiler içindir.";
+
+                btnZRaporu.IsEnabled = false;
+                btnZRaporu.ToolTip = "Bu bölüm sadece Yöneticiler içindir.";
+
+                btnKullanicilar.IsEnabled = false;
+                btnKullanicilar.ToolTip = "Bu bölüm sadece Yöneticiler içindir.";
+
+                // İade kasiyere açık, ancak onay anında yönetici şifresi istenir
+                btnIade.ToolTip = "İade işlemi yönetici onayı gerektirir.";
             }
         }
 
@@ -118,8 +130,8 @@ namespace MarketPOS.Arayuzler
                     int sktSayisi = baglanti.ExecuteScalar<int>(sktSql, new { SktSinir = DateTime.Today.AddDays(15) });
 
                     // 2. Kritik / Eksi stok sayısı
-                    string stokSql = "SELECT COUNT(*) FROM Urunler WHERE StokMiktari <= 5";
-                    int stokSayisi = baglanti.ExecuteScalar<int>(stokSql);
+                    string stokSql = "SELECT COUNT(*) FROM Urunler WHERE StokMiktari <= @Kritik";
+                    int stokSayisi = baglanti.ExecuteScalar<int>(stokSql, new { Kritik = AyarServisi.OkuDecimal(AyarServisi.KritikStokSeviyesi, 5) });
 
                     // 3. 30 Günü geçmiş borçlu veresiye müşteri sayısı
                     string veresiyeSql = "SELECT COUNT(*) FROM Musteriler WHERE BorcMiktari > 0 AND KayitTarihi <= @BorcSinir";
@@ -199,6 +211,56 @@ namespace MarketPOS.Arayuzler
         {
             AyarlarWindow pencere = new AyarlarWindow();
             pencere.Show();
+        }
+
+        private void BtnIade_Click(object sender, RoutedEventArgs e)
+        {
+            new IadeIslemWindow { Owner = this }.ShowDialog();
+        }
+
+        private void BtnZRaporu_Click(object sender, RoutedEventArgs e)
+        {
+            new ZRaporuWindow { Owner = this }.ShowDialog();
+        }
+
+        private void BtnKullanicilar_Click(object sender, RoutedEventArgs e)
+        {
+            new KullaniciYonetimiWindow { Owner = this }.ShowDialog();
+        }
+
+        private void BtnSifreDegistir_Click(object sender, RoutedEventArgs e)
+        {
+            new SifreDegistirWindow { Owner = this }.ShowDialog();
+        }
+
+        /// <summary>
+        /// Vardiya değişiminde programı kapatmadan oturumu kapatıp giriş ekranına döner.
+        /// Açık satış ekranlarında tamamlanmamış sepet varsa kapanış iptal edilebilir.
+        /// </summary>
+        private void BtnKullaniciDegistir_Click(object sender, RoutedEventArgs e)
+        {
+            var giris = new GirisEkraniWindow();
+            giris.Show(); // Uygulama son pencere kapanınca kapanmasın diye önce giriş ekranı açılır
+
+            foreach (Window pencere in Application.Current.Windows.Cast<Window>().ToList())
+            {
+                if (pencere == giris || pencere == this) continue;
+                pencere.Close();
+                if (pencere.IsLoaded)
+                {
+                    // Kullanıcı tamamlanmamış satış nedeniyle kapatmayı iptal etti
+                    giris.Close();
+                    pencere.Activate();
+                    return;
+                }
+            }
+
+            LogServisi.Bilgi("Oturum kapatıldı (kullanıcı değiştir)");
+            Modeller.AktifOturum.OturumKapat();
+            _saatTimer?.Stop();
+            _rozetTimer?.Stop();
+            AktifPencere = null;
+            Close();
         }
 
         private void BtnCikis_Click(object sender, RoutedEventArgs e)

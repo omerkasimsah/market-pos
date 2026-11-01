@@ -106,6 +106,57 @@
                     </Border>
                 </UniformGrid>
 
+                <!-- Kasa Sayımı -->
+                <TextBlock Text="💵 KASA SAYIMI (NAKİT MUTABAKATI)" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                <Border Background="White" CornerRadius="8" Padding="12" Margin="0,0,0,15" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock Text="Kasa Açılış (Devir):" FontWeight="Bold" FontSize="13"/>
+                            <TextBox x:Name="txtKasaAcilis" Text="0" FontSize="16" Padding="5" TextChanged="KasaSayim_TextChanged"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                            <TextBlock Text="Beklenen Nakit:" FontWeight="Bold" FontSize="13"/>
+                            <TextBlock x:Name="txtBeklenenNakit" Text="0.00 ₺" FontSize="20" FontWeight="Black" Foreground="#2C3E50"/>
+                            <TextBlock x:Name="txtBeklenenDetay" Text="" FontSize="11" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                            <TextBlock Text="Sayılan Nakit:" FontWeight="Bold" FontSize="13"/>
+                            <TextBox x:Name="txtSayilanNakit" Text="" FontSize="16" Padding="5" TextChanged="KasaSayim_TextChanged"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="Kasa Farkı:" FontWeight="Bold" FontSize="13"/>
+                            <TextBlock x:Name="txtKasaFarki" Text="-" FontSize="20" FontWeight="Black" Foreground="#2C3E50"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- KDV ve Kârlılık -->
+                <TextBlock Text="🧾 KDV DAĞILIMI VE KÂRLILIK" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid x:Name="dgKdv" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column" RowHeight="28" FontSize="13">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="KDV %" Binding="{Binding Oran, StringFormat=0}" Width="60"/>
+                            <DataGridTextColumn Header="Matrah" Binding="{Binding Matrah, StringFormat=N2}" Width="*"/>
+                            <DataGridTextColumn Header="KDV" Binding="{Binding Kdv, StringFormat=N2}" Width="*"/>
+                            <DataGridTextColumn Header="Toplam" Binding="{Binding Toplam, StringFormat=N2}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="12" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <TextBlock x:Name="txtKarlilik" FontSize="13" FontFamily="Consolas" Foreground="#2C3E50"/>
+                    </Border>
+                </Grid>
+
                 <!-- Satış Listesi -->
                 <TextBlock Text="📋 GÜN İÇİ SATIŞLAR" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,8"/>
                 <DataGrid x:Name="dgSatislar" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" MaxHeight="200"

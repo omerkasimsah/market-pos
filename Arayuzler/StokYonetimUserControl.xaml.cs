@@ -76,7 +76,8 @@ namespace MarketPOS.Arayuzler
             }
             else if (_aktifFiltre == "Kritik")
             {
-                filtreliListe = filtreliListe.Where(u => u.StokMiktari <= 5);
+                decimal kritik = MarketPOS.Servisler.AyarServisi.OkuDecimal(MarketPOS.Servisler.AyarServisi.KritikStokSeviyesi, 5);
+                filtreliListe = filtreliListe.Where(u => u.StokMiktari <= kritik);
             }
             else if (_aktifFiltre == "Skt")
             {

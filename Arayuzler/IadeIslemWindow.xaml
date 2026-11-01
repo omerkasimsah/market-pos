@@ -27,7 +27,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Satış No / Fiş No:" FontWeight="Bold" FontSize="15" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                <TextBox x:Name="txtAramaSatisNo" Grid.Column="1" FontSize="16" Padding="8" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtAramaSatisNo" Grid.Column="1" FontSize="16" Padding="8" Margin="0,0,10,0" KeyDown="TxtAramaSatisNo_KeyDown"/>
                 <Button Grid.Column="2" Content="🔍 ARA" Background="#3498DB" Foreground="White" FontWeight="Bold" FontSize="14" Padding="15,6" BorderThickness="0" Click="BtnAra_Click">
                     <Button.Resources><Style TargetType="{x:Type Border}"><Setter Property="CornerRadius" Value="4"/></Style></Button.Resources>
                 </Button>
@@ -43,8 +43,9 @@
                 <DataGridTextColumn Header="Ürün Adı" Binding="{Binding UrunAdi}" Width="*" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Adet" Binding="{Binding Adet}" Width="70" IsReadOnly="True"/>
                 <DataGridTextColumn Header="B. Fiyat" Binding="{Binding BirimFiyat, StringFormat={}{0:N2} ₺}" Width="90" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Toplam" Binding="{Binding ToplamFiyat, StringFormat={}{0:N2} ₺}" Width="100" IsReadOnly="True"/>
-                <DataGridTextColumn Header="İade Adet" Binding="{Binding IadeAdedi}" Width="80"/>
+                <DataGridTextColumn Header="Önceki İade" Binding="{Binding OncekiIade, StringFormat=0.###}" Width="90" IsReadOnly="True"/>
+                <DataGridTextColumn Header="İade Edilebilir" Binding="{Binding Kalan, StringFormat=0.###}" Width="100" IsReadOnly="True"/>
+                <DataGridTextColumn Header="İade Adet" Binding="{Binding IadeAdedi, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
             </DataGrid.Columns>
         </DataGrid>
 

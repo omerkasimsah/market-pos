@@ -219,18 +219,13 @@ namespace MarketPOS.Arayuzler
 
         private void BtnFisYazdir_Click(object sender, RoutedEventArgs e)
         {
-            if (_seciliFis != null && _seciliFisDetaylari != null)
+            if (_seciliFis != null)
             {
-                var sepetUrunleri = _seciliFisDetaylari.Select(x => new SepetUrunu
-                {
-                    UrunId = x.UrunId,
-                    UrunAdi = x.UrunAdi,
-                    Adet = x.Adet,
-                    BirimFiyat = x.BirimFiyat
-                }).ToList();
-
-                _yaziciServisi.FisYazdir(_seciliFis.FisNo, _seciliFis.Tarih, sepetUrunleri, _seciliFis.ToplamTutar, _seciliFis.OdemeTuru);
-                MessageBox.Show("Fiş tekrar yazıcıya gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+                var fis = new SatisServisi().FisBilgisiGetir(_seciliFis.Id);
+                if (fis != null && _yaziciServisi.FisYazdir(fis))
+                    MessageBox.Show("Fiş tekrar yazıcıya gönderildi.", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+                else
+                    MessageBox.Show("Fiş yazdırılamadı. Ayarlar ekranından fiş yazıcısının seçili olduğunu kontrol edin.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -238,46 +233,14 @@ namespace MarketPOS.Arayuzler
         {
             if (_seciliFis == null || _seciliFis.IptalEdildi) return;
 
-            var cevap = MessageBox.Show($"Fiş No: {_seciliFis.FisNo}\nToplam Tutar: {_seciliFis.ToplamTutar:N2} ₺\n\nBu satışı İPTAL / İADE etmek istediğinize emin misiniz? Ürün stokları geri eklenecektir.", "Satış İadesi Onayı", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            
+            var cevap = MessageBox.Show($"Fiş No: {_seciliFis.FisNo}\nToplam Tutar: {_seciliFis.ToplamTutar:N2} ₺\n\nBu satışı tamamen İPTAL etmek istediğinize emin misiniz? Ürün stokları geri eklenecek, veresiye ise müşteri borcundan düşülecektir.", "Satış İptali Onayı", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
             if (cevap == MessageBoxResult.Yes)
             {
                 try
                 {
-                    using (var baglanti = _db.BaglantiGetir())
-                    {
-                        baglanti.Open();
-                        using (var islem = baglanti.BeginTransaction())
-                        {
-                            // 1. Satışı iptal olarak işaretle
-                            baglanti.Execute("UPDATE Satislar SET IptalEdildi = 1 WHERE Id = @Id", new { Id = _seciliFis.Id }, islem);
-
-                            // 2. Stokları geri ekle
-                            if (_seciliFisDetaylari != null)
-                            {
-                                foreach (var detay in _seciliFisDetaylari)
-                                {
-                                    baglanti.Execute("UPDATE Urunler SET StokMiktari = StokMiktari + @Adet WHERE Id = @Id", new { Adet = detay.Adet, Id = detay.UrunId }, islem);
-                                }
-                            }
-
-                            // 3. İşlem geçmişine iade kaydı düş
-                            string iadeSorgu = @"
-                                INSERT INTO Islemler (IslemTipi, Aciklama, Tutar, Tarih, SatisId) 
-                                VALUES ('Satış İadesi', @Aciklama, @Tutar, @Tarih, @SatisId)";
-                            baglanti.Execute(iadeSorgu, new 
-                            { 
-                                Aciklama = $"Satış İadesi (Fiş: {_seciliFis.FisNo})", 
-                                Tutar = _seciliFis.ToplamTutar, 
-                                Tarih = DateTime.Now, 
-                                SatisId = _seciliFis.Id 
-                            }, islem);
-
-                            islem.Commit();
-                        }
-                    }
-
-                    MessageBox.Show("Satış iadesi başarıyla gerçekleşti ve stoklar geri yüklendi.", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    new SatisServisi().SatisIptalEt(_seciliFis.Id);
+                    MessageBox.Show("Satış iptal edildi ve stoklar geri yüklendi.", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
                     BtnFisAra_Click(null, null);
                 }
                 catch (Exception ex)
